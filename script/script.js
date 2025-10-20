@@ -53,8 +53,18 @@ document.getElementById('formCadastro').addEventListener('submit', function (eve
     localStorage.setItem('dtNascimento', dtNascimento);
     localStorage.setItem('salario', salario);
     localStorage.setItem('creditoEmReal', creditoEmReal);
-  
+
+    limparFormulario();
+    alert('Cliente cadastrado com sucesso!');
 });
+
+function limparFormulario() {
+    document.getElementById('clientName').value = '';
+    document.getElementById('clientCPF').value = '';
+    document.getElementById('clientTelefone').value = '';
+    document.getElementById('clientDtNascimento').value = '';
+    document.getElementById('clientSalario').value = '';
+}
 
 function mostrarCliente() {
     const name = localStorage.getItem('name');
@@ -64,7 +74,7 @@ function mostrarCliente() {
     const salario = localStorage.getItem('salario');
     const creditoEmReal = localStorage.getItem('creditoEmReal');
 
-     alert(
+    alert(
         'Nome do cliente: ' + name + '\n' +
         'CPF: ' + cpf + '\n' +
         'Telefone: ' + telefone + '\n' +
