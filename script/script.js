@@ -47,16 +47,32 @@ document.getElementById('formCadastro').addEventListener('submit', function (eve
     const credito = salarioConvertivo * 0.3;
     const creditoEmReal = converterEmReal(credito);
 
-    localStorage.setItem('name', name);
-    localStorage.setItem('cpf', cpf);
-    localStorage.setItem('telefone', telefone);
-    localStorage.setItem('dtNascimento', dtNascimento);
-    localStorage.setItem('salario', salario);
-    localStorage.setItem('creditoEmReal', creditoEmReal);
+    const cliente = {
+        name, cpf, telefone, dtNascimento, salario, creditoEmReal
+    };
 
+    salvarCliente(cliente);
     limparFormulario();
     alert('Cliente cadastrado com sucesso!');
 });
+
+function obterTotalClientes() {
+    return parseInt(localStorage.getItem('totalClientes') || '0',10);
+}
+
+function salvarCliente(cliente) {
+
+    const index = obterTotalClientes();
+
+    localStorage.setItem(`cliente_${index}_name`, cliente.name);
+    localStorage.setItem(`cliente_${index}_cpf`, cliente.cpf);
+    localStorage.setItem(`cliente_${index}_telefone`, cliente.telefone);
+    localStorage.setItem(`cliente_${index}_dtNascimento`, cliente.dtNascimento);
+    localStorage.setItem(`cliente_${index}_salario`, cliente.salario);
+    localStorage.setItem(`cliente_${index}_creditoEmReal`, cliente.creditoEmReal);
+
+    localStorage.setItem('totalClientes', index + 1);
+}
 
 function limparFormulario() {
     document.getElementById('clientName').value = '';
