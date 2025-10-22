@@ -57,7 +57,7 @@ document.getElementById('formCadastro').addEventListener('submit', function (eve
 });
 
 function obterTotalClientes() {
-    return parseInt(localStorage.getItem('totalClientes') || '0',10);
+    return parseInt(localStorage.getItem('totalClientes') || '0', 10);
 }
 
 function salvarCliente(cliente) {
@@ -72,6 +72,8 @@ function salvarCliente(cliente) {
     localStorage.setItem(`cliente_${index}_creditoEmReal`, cliente.creditoEmReal);
 
     localStorage.setItem('totalClientes', index + 1);
+
+    carregarClientes();
 }
 
 function limparFormulario() {
@@ -82,22 +84,44 @@ function limparFormulario() {
     document.getElementById('clientSalario').value = '';
 }
 
-function mostrarCliente() {
-    const name = localStorage.getItem('name');
-    const cpf = localStorage.getItem('cpf');
-    const telefone = localStorage.getItem('telefone');
-    const dtNascimento = localStorage.getItem('dtNascimento');
-    const salario = localStorage.getItem('salario');
-    const creditoEmReal = localStorage.getItem('creditoEmReal');
+function buscarClientes() {
+    const total = obterTotalClientes();
+    const clientes = [];
 
-    alert(
-        'Nome do cliente: ' + name + '\n' +
-        'CPF: ' + cpf + '\n' +
-        'Telefone: ' + telefone + '\n' +
-        'Data de Nascimento: ' + dtNascimento + '\n' +
-        'Salário: ' + salario + '\n' +
-        'Crédito Disponível: R$ ' + creditoEmReal
-    );
+    for (let i = 0; i < total; i++) {
+        const cliente = {
+            name: localStorage.getItem(`cliente_${i}_name`),
+            cpf: localStorage.getItem(`cliente_${i}_cpf`),
+            telefone: localStorage.getItem(`cliente_${i}_telefone`),
+            dtNascimento: localStorage.getItem(`cliente_${i}_dtNascimento`),
+            salario: localStorage.getItem(`cliente_${i}_salario`),
+            creditoEmReal: localStorage.getItem(`cliente_${i}_creditoEmReal`),
+        };
+
+        clientes.push(cliente);
+    }
+
+    return clientes;
+}
+
+function carregarClientes() {
+    const clientes = buscarClientes();
+    const tbody = document.getElementById('listaClientes');
+
+    tbody.innerHTML = '';
+    clientes.forEach(cli => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${cli.name}</td>
+            <td>${cli.cpf}</td>
+            <td>${cli.telefone}</td>
+            <td>${cli.dtNascimento}</td>
+            <td>${cli.salario}</td>
+            <td>${cli.creditoEmReal}</td>
+        `;
+
+        tbody.appendChild(tr);
+    });
 }
 
 function converterEmCentavos(salario) {
