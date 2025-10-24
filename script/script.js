@@ -1,4 +1,20 @@
 
+document.addEventListener('DOMContentLoaded', function () {
+    carregarClientes();
+    inicializarSelect2Cidades();
+});
+
+function inicializarSelect2Cidades() {
+    const cidades = ['São Paulo/SP', 'Rio de Janeiro/RJ', 'Campo Mourão/PR', 'Maringá/PR',
+        'Londrina/PR', 'Peabiru/PR'];
+
+    $('#clientCidade').select2({
+        theme: 'bootstrap-5',
+        placeholder: 'Selecione uma cidade',
+        allowClear: true,
+        data: cidades.map(cidade => ({ id: cidade, text: cidade }))
+    });
+}
 
 function validarCPF(cpf) {
     cpf = cpf.replace(/[.-]/g, ""); // Remove pontos e traços
@@ -41,6 +57,7 @@ document.getElementById('formCadastro').addEventListener('submit', function (eve
     const cpf = document.getElementById('clientCPF').value;
     const telefone = document.getElementById('clientTelefone').value;
     const dtNascimento = document.getElementById('clientDtNascimento').value;
+    const cidade = $('#clientCidade').select2('data')[0]?.text || '';
     const salario = document.getElementById('clientSalario').value;
 
     const salarioConvertivo = converterEmCentavos(salario);
@@ -48,13 +65,31 @@ document.getElementById('formCadastro').addEventListener('submit', function (eve
     const creditoEmReal = converterEmReal(credito);
 
     const cliente = {
-        name, cpf, telefone, dtNascimento, salario, creditoEmReal
+        name, cpf, telefone, dtNascimento, cidade, salario, creditoEmReal
     };
 
-    salvarCliente(cliente);
-    limparFormulario();
-    alert('Cliente cadastrado com sucesso!');
+    if (existCPFCadastrado(cliente.cpf) == true) {
+        alert('CPF Cadastrado!');
+    } else {
+        salvarCliente(cliente);
+        limparFormulario();
+        alert('Cliente cadastrado com sucesso!');
+    }
 });
+
+function existCPFCadastrado(cpf) {
+    const total = obterTotalClientes();
+
+    for (let i = 0; i < total; i++) {
+        const cpfCadastrado = localStorage.getItem(`cliente_${i}_cpf`)
+
+        if (cpf === cpfCadastrado) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 function obterTotalClientes() {
     return parseInt(localStorage.getItem('totalClientes') || '0', 10);
@@ -68,6 +103,7 @@ function salvarCliente(cliente) {
     localStorage.setItem(`cliente_${index}_cpf`, cliente.cpf);
     localStorage.setItem(`cliente_${index}_telefone`, cliente.telefone);
     localStorage.setItem(`cliente_${index}_dtNascimento`, cliente.dtNascimento);
+    localStorage.setItem(`cliente_${index}_cidade`, cliente.cidade);
     localStorage.setItem(`cliente_${index}_salario`, cliente.salario);
     localStorage.setItem(`cliente_${index}_creditoEmReal`, cliente.creditoEmReal);
 
@@ -95,6 +131,7 @@ function buscarClientes() {
             telefone: localStorage.getItem(`cliente_${i}_telefone`),
             dtNascimento: localStorage.getItem(`cliente_${i}_dtNascimento`),
             salario: localStorage.getItem(`cliente_${i}_salario`),
+            cidade: localStorage.getItem(`cliente_${i}_cidade`) || '',
             creditoEmReal: localStorage.getItem(`cliente_${i}_creditoEmReal`),
         };
 
@@ -111,17 +148,30 @@ function carregarClientes() {
     tbody.innerHTML = '';
     clientes.forEach(cli => {
         const tr = document.createElement('tr');
+        const date = formatDate(cli.dtNascimento);
         tr.innerHTML = `
             <td>${cli.name}</td>
             <td>${cli.cpf}</td>
             <td>${cli.telefone}</td>
-            <td>${cli.dtNascimento}</td>
+            <td>${date}</td>
+            <td>${cli.cidade}</td>
             <td>${cli.salario}</td>
             <td>${cli.creditoEmReal}</td>
         `;
 
         tbody.appendChild(tr);
     });
+}
+
+function formatDate(dataStr) {
+    if (!isNaN(dataStr)) return '';
+
+    const parts = dataStr.split('-');
+    if (parts.length === 3) {
+        const [y, m, d] = parts;
+        return `${d}/${m}/${y}`;
+    }
+
 }
 
 function converterEmCentavos(salario) {
